@@ -94,38 +94,43 @@ def addmemory():
 
 
 @ask.intent("AddRecommendations")
-def add_recommendation(title, media_type):
+def add_recommendation(BookTitle, MediaType, MovieTitle):
     db_session = DBSession()
-    media = db_session.query(Memory).filter(Memory.name.like('%%%s%%').format(media_type)).all()
+    if(MediaType == "movie"):
+        title = MovieTitle 
+    else:
+        title = BookTitle
+    print title, MediaType
+    media = db_session.query(Memory).filter(Memory.name.like('%%%s%%' %(MediaType))).all()
     if len(media) == 0:
         media = Memory()
-        media.name = media_type
+        media.name = MediaType
         media.type = 3
-        session.add(media)
-        session.commit()
+        db_session.add(media)
+        db_session.commit()
     else:
-        media = media.first()
+        media = media[0]
         
-    media = db.session.query(Recommendation).filter(Recommendation.memory_id == media.id).all()
+    media = db_session.query(Recommendation).filter(Recommendation.memory_id == media.id).all()
     if len(media) == 0:
         media = Recommendation()
         media.memory_id = media.id
         media.list = json.dumps([])
-        session.add(media)
-        session.commit()
+        db_session.add(media)
+        db_session.commit()
     else:
-        media = media.first()
-        
+        media = media[0]
+    
     media_list = media.list
     list_json = json.loads(media_list)
-    list_json.add(title)
+    list_json.append(title)
     
     media_list = json.dumps(list_json)
     media.list = media_list
-    session.add(media)
-    session.commit()
+    db_session.add(media)
+    db_session.commit()
     
-    msg = render_template('add_rec')
+    msg = render_template('add_rec', MediaType=MediaType, title = title)
     return statement(msg)
     
 if __name__ == '__main__':

@@ -42,6 +42,7 @@ class Recommendation(Base):
     list = Column(Text, nullable=False)
     memory_id = Column(Integer, ForeignKey('memory.id'))
 
+
 engine = create_engine('sqlite:///memories.db')
 
 Base.metadata.create_all(engine)
