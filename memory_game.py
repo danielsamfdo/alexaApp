@@ -23,6 +23,21 @@ def new_game():
     return question(welcome_msg)
 
 
+
+@ask.intent("QueryStepIntent")
+
+def next_round():
+
+    numbers = [randint(0, 9) for _ in range(3)]
+
+    round_msg = render_template('round', numbers=numbers)
+
+    session.attributes['numbers'] = numbers[::-1]  # reverse
+
+    return question(round_msg)
+
+
+
 @ask.intent("YesIntent")
 
 def next_round():
@@ -51,6 +66,13 @@ def answer(first, second, third):
         msg = render_template('lose')
 
     return statement(msg)
+
+
+@ask.intent("AddMemoryIntent")
+
+def addmemory():
+
+    return statement("Your comment has been saved")
 
 
 if __name__ == '__main__':
