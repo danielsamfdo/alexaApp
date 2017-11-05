@@ -78,9 +78,20 @@ def answer(first, second, third):
     return statement(msg)
 
 
+def getStep(StepNumber, Everydayrecipies, CookingActions,WeightIngredients, Ingredients, CookingTime,CookingTemperature):
+    step = render_template('ins_step_3',StepNumber=StepNumber, Everydayrecipies=Everydayrecipies, CookingActions=CookingActions,WeightIngredients=WeightIngredients, Ingredients=Ingredients, CookingTime=CookingTime)
+ 
+    if(CookingTemperature>0):
+        step = render_template('ins_step_2',StepNumber=StepNumber, Everydayrecipies=Everydayrecipies, CookingActions=CookingActions,WeightIngredients=WeightIngredients, Ingredients=Ingredients, CookingTime=CookingTime, CookingTemperature=CookingTemperature)
+    if(WeightIngredients>0):
+        step = render_template('ins_step_1',StepNumber=StepNumber, Everydayrecipies=Everydayrecipies, CookingActions=CookingActions,WeightIngredients=WeightIngredients, Ingredients=Ingredients, CookingTime=CookingTime)
+
+    return step
+
+
 @ask.intent("InsertNewStep", convert={'StepNumber': int, 'WeightIngredients': int, 'CookingTime': int, 'CookingTemperature': int})
 
-def insert_new_step(StepNumber, Everydayrecipies, CookingActions,WeightIngredients, Ingredients, CookingTime):
+def insert_new_step(StepNumber, Everydayrecipies, CookingActions,WeightIngredients, Ingredients, CookingTime, CookingTemperature):
     if(len(Everydayrecipies) < 2):
         return statement(render_template('couldnt_follow',title='recipe'))
 
@@ -95,17 +106,107 @@ def insert_new_step(StepNumber, Everydayrecipies, CookingActions,WeightIngredien
     recipe_mem = db_session.query(Memory).filter(Memory.name.like('%%%s%%' %(Everydayrecipies))).first()
     print 'recipe_mem is %s, Rec.mem id is %s'%(recipe_mem.name, recipe_mem.id)    
     recipe = db_session.query(Recipe).filter(Recipe.memory_id == recipe_mem.id).first()
+    if(recipe==None):
+        recipe = Recipe()
+        recipe.memory_id = recipe_mem.id
+        recipe.ingredients = json.dumps({})
+        recipe.steps = json.dumps([])
+        db_session.add(recipe)
+        db_session.commit()
     steps = json.loads(recipe.steps)
-    # if(StepNumber not in range(recipe.steps))
+    ingredients = json.loads(recipe.ingredients)
+    print recipe.steps, StepNumber != len(steps)+1, StepNumber, 
+    if(StepNumber != len(steps)+1):
+        return statement("That step number is not available")
 
-    # recipe.
-    json.dumps(['foo', {'bar': ('baz', None, 1.0, 2)}])
+    if(WeightIngredients>0):
+        ingredients[Ingredients] = WeightIngredients
+    
 
-    msg = render_template('insert_new_step',StepNumber=StepNumber, Everydayrecipies=Everydayrecipies, CookingActions=CookingActions,WeightIngredients=WeightIngredients, Ingredients=Ingredients, CookingTime=CookingTime)
+    steps.append(getStep(StepNumber, Everydayrecipies, CookingActions,WeightIngredients, Ingredients, CookingTime,CookingTemperature))
+    recipe.steps = json.dumps(steps)
+    recipe.ingredients = json.dumps(ingredients)
+    db_session.add(recipe)
+    db_session.commit()
 
-    if(StepNumber > 0 and len(Everydayrecipies)>0 and len(CookingActions)>0 and (WeightIngredients)>0 and len(Ingredients) > 0):
-        msg = render_template('insert_new_step',StepNumber=StepNumber, Everydayrecipies=Everydayrecipies, CookingActions=CookingActions,WeightIngredients=WeightIngredients, Ingredients=Ingredients, CookingTime=CookingTime)
+    msg = render_template('added_new_step',StepNumber=StepNumber, Everydayrecipies=Everydayrecipies, CookingActions=CookingActions,WeightIngredients=WeightIngredients, Ingredients=Ingredients, CookingTime=CookingTime)
+
     return statement(msg)
+
+
+def all_steps(steps):
+    s = ""
+    for i in range(len(steps)):
+        s+= "Step " + str(i+1) + " " + steps[i] + "."
+    return s
+
+@ask.intent("ModifyStep", convert={'StepNumber': int})
+
+def modify_step(StepNumber, Everydayrecipies, CookingActions,WeightIngredients, Ingredients, CookingTime, CookingTemperature):
+    if(len(Everydayrecipies) < 2):
+        return statement(render_template('couldnt_follow',title='recipe'))
+
+    db_session = DBSession()
+    recipes = db_session.query(Memory).filter(Memory.name.like('%%%s%%' %(Everydayrecipies))).all()
+    if len(recipes) == 0:
+        return statement('not_present',Everydayrecipies=Everydayrecipies)
+    recipe_mem = db_session.query(Memory).filter(Memory.name.like('%%%s%%' %(Everydayrecipies))).first()
+    print 'recipe_mem is %s, Rec.mem id is %s'%(recipe_mem.name, recipe_mem.id)    
+    recipe = db_session.query(Recipe).filter(Recipe.memory_id == recipe_mem.id).first()
+    if(recipe==None):
+        return statement('not_present',Everydayrecipies=Everydayrecipies)
+    steps = json.loads(recipe.steps)
+    if((StepNumber-1) not in range(1,len(steps)+1)):
+        return statement("That step number is not available")
+    steps.pop(StepNumber-1)
+    recipe.steps = json.dumps(steps)
+    db_session.add(recipe)
+    db_session.commit()
+
+    # msg = render_template('added_new_step',StepNumber=StepNumber, Everydayrecipies=Everydayrecipies, CookingActions=CookingActions,WeightIngredients=WeightIngredients, Ingredients=Ingredients, CookingTime=CookingTime)
+
+    return statement(render_template('removed',Everydayrecipies=Everydayrecipies) + all_steps(steps))
+
+
+
+@ask.intent("QueryStep", convert={'StepNumber': int,'AddedWeight' : int})
+
+def query_step(StepNumber, Everydayrecipies, AddedWeight, QueryKey, Ingredients):
+    if(len(Everydayrecipies) < 2):
+        return statement(render_template('couldnt_follow',title='recipe'))
+
+    db_session = DBSession()
+    recipes = db_session.query(Memory).filter(Memory.name.like('%%%s%%' %(Everydayrecipies))).all()
+    if len(recipes) == 0:
+        return statement(render_template('not_present',Everydayrecipies=Everydayrecipies))
+    recipe_mem = db_session.query(Memory).filter(Memory.name.like('%%%s%%' %(Everydayrecipies))).first()
+    print 'recipe_mem is %s, Rec.mem id is %s'%(recipe_mem.name, recipe_mem.id)    
+    recipe = db_session.query(Recipe).filter(Recipe.memory_id == recipe_mem.id).first()
+    if(recipe==None):
+        return statement(render_template('not_present',Everydayrecipies=Everydayrecipies))
+    steps = json.loads(recipe.steps)
+    ingredients = json.loads(recipe.ingredients)
+    res = ""
+    if(QueryKey and (QueryKey.lower())=="list"):
+        for k,v in ingredients:
+            res+=k+" "+str(v)+" grams"
+        return statement(render_template('ingredients',Everydayrecipies=Everydayrecipies, ingredients=res))
+    if(QueryKey and (QueryKey.lower())=="steps"):
+        return statement(render_template('steps',Everydayrecipies=Everydayrecipies, step=all_steps(steps)))
+    if(AddedWeight and AddedWeight>0):
+        if(AddedWeight - ingredients[Ingredients] < 0):
+            return statement(render_template('addedmore',Everydayrecipies=Everydayrecipies))
+        else:
+            return statement(render_template('addsome',Everydayrecipies=Everydayrecipies))
+    if(Ingredients in ingredients):
+        return statement(render_template('addsome',Everydayrecipies=Everydayrecipies))
+
+
+    # msg = render_template('added_new_step',StepNumber=StepNumber, Everydayrecipies=Everydayrecipies, CookingActions=CookingActions,WeightIngredients=WeightIngredients, Ingredients=Ingredients, CookingTime=CookingTime)
+
+    return statement(render_template('unable',Everydayrecipies=Everydayrecipies) + all_steps(steps))
+
+
 
 
 @ask.intent("AddMemoryIntent")
