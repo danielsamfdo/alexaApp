@@ -5,7 +5,7 @@ import json
 
 from flask import Flask, render_template
 
-from flask_ask import Ask, statement, question, session
+from flask_ask import Ask, question, question, session
 
 from sql_alchemy_tables import *
 from sqlalchemy.orm import sessionmaker
@@ -28,7 +28,7 @@ DBSession = sessionmaker(bind=engine)
 
 def new_game():
 
-    welcome_msg = render_template('welcome')
+    welcome_msg = render_template('go')
 
     return question(welcome_msg)
 
@@ -75,7 +75,7 @@ def answer(first, second, third):
 
         msg = render_template('lose')
 
-    return statement(msg)
+    return question(msg)
 
 
 def getStep(StepNumber, Everydayrecipies, CookingActions,WeightIngredients, Ingredients, CookingTime,CookingTemperature):
@@ -94,7 +94,7 @@ def getStep(StepNumber, Everydayrecipies, CookingActions,WeightIngredients, Ingr
 
 def insert_new_step(StepNumber, Everydayrecipies, CookingActions,WeightIngredients, Ingredients, CookingTime, CookingTemperature):
     if(len(Everydayrecipies) < 2):
-        return statement(render_template('couldnt_follow',title='recipe'))
+        return question(render_template('couldnt_follow',title='recipe'))
 
     db_session = DBSession()
     recipes = db_session.query(Memory).filter(Memory.name.like('%%%s%%' %(Everydayrecipies))).all()
@@ -118,7 +118,7 @@ def insert_new_step(StepNumber, Everydayrecipies, CookingActions,WeightIngredien
     ingredients = json.loads(recipe.ingredients)
     print recipe.steps, StepNumber != len(steps)+1, StepNumber, 
     if(StepNumber != len(steps)+1):
-        return statement("That step number is not available")
+        return question("That step number is not available")
 
     if(WeightIngredients>0):
         ingredients[Ingredients] = WeightIngredients
@@ -132,33 +132,33 @@ def insert_new_step(StepNumber, Everydayrecipies, CookingActions,WeightIngredien
 
     msg = render_template('added_new_step',StepNumber=StepNumber, Everydayrecipies=Everydayrecipies, CookingActions=CookingActions,WeightIngredients=WeightIngredients, Ingredients=Ingredients, CookingTime=CookingTime)
 
-    return statement(msg)
+    return question(msg)
 
 
 def all_steps(steps):
-    s = ""
+    s = " "
     for i in range(len(steps)):
-        s+= "Step " + str(i+1) + " " + steps[i] + "."
+        s+= "Step " + str(i+1) + " " + steps[i] + ", "
     return s
 
 @ask.intent("ModifyStep", convert={'StepNumber': int})
 
 def modify_step(StepNumber, Everydayrecipies, CookingActions,WeightIngredients, Ingredients, CookingTime, CookingTemperature):
     if(len(Everydayrecipies) < 2):
-        return statement(render_template('couldnt_follow',title='recipe'))
+        return question(render_template('couldnt_follow',title='recipe'))
 
     db_session = DBSession()
     recipes = db_session.query(Memory).filter(Memory.name.like('%%%s%%' %(Everydayrecipies))).all()
     if len(recipes) == 0:
-        return statement('not_present',Everydayrecipies=Everydayrecipies)
+        return question('not_present',Everydayrecipies=Everydayrecipies)
     recipe_mem = db_session.query(Memory).filter(Memory.name.like('%%%s%%' %(Everydayrecipies))).first()
     print 'recipe_mem is %s, Rec.mem id is %s'%(recipe_mem.name, recipe_mem.id)    
     recipe = db_session.query(Recipe).filter(Recipe.memory_id == recipe_mem.id).first()
     if(recipe==None):
-        return statement('not_present',Everydayrecipies=Everydayrecipies)
+        return question('not_present',Everydayrecipies=Everydayrecipies)
     steps = json.loads(recipe.steps)
     if((StepNumber-1) not in range(1,len(steps)+1)):
-        return statement("That step number is not available")
+        return question("That step number is not available")
     steps.pop(StepNumber-1)
     recipe.steps = json.dumps(steps)
     db_session.add(recipe)
@@ -166,55 +166,90 @@ def modify_step(StepNumber, Everydayrecipies, CookingActions,WeightIngredients, 
 
     # msg = render_template('added_new_step',StepNumber=StepNumber, Everydayrecipies=Everydayrecipies, CookingActions=CookingActions,WeightIngredients=WeightIngredients, Ingredients=Ingredients, CookingTime=CookingTime)
 
-    return statement(render_template('removed',Everydayrecipies=Everydayrecipies) + all_steps(steps))
+    return question(render_template('removed',Everydayrecipies=Everydayrecipies) + all_steps(steps))
 
+def getAllExperience(recipe_mem,db_session,Everydayrecipies):
+    exp = db_session.query(Memory).filter(Memory.name.like('%%%s%%' %(Everydayrecipies))).first()
+    if(exp==None):
+        return question(render_template("exp_not_available"))
+    recipe_exp = db_session.query(Experience).filter(Experience.memory_id == recipe_mem.id).all()
+    res = ""
+    for rec_exp in recipe_exp:
+        # print rec_exp
+        res+=rec_exp.experience + " on " + rec_exp.date.strftime("%m-%d-%y") + "  ... "
+    return res
 
 
 @ask.intent("QueryStep", convert={'StepNumber': int,'AddedWeight' : int})
 
 def query_step(StepNumber, Everydayrecipies, AddedWeight, QueryKey, Ingredients):
     if(len(Everydayrecipies) < 2):
-        return statement(render_template('couldnt_follow',title='recipe'))
+        return question(render_template('couldnt_follow',title='recipe'))
 
     db_session = DBSession()
     recipes = db_session.query(Memory).filter(Memory.name.like('%%%s%%' %(Everydayrecipies))).all()
     if len(recipes) == 0:
-        return statement(render_template('not_present',Everydayrecipies=Everydayrecipies))
+        return question(render_template('not_present',Everydayrecipies=Everydayrecipies))
     recipe_mem = db_session.query(Memory).filter(Memory.name.like('%%%s%%' %(Everydayrecipies))).first()
     print 'recipe_mem is %s, Rec.mem id is %s'%(recipe_mem.name, recipe_mem.id)    
     recipe = db_session.query(Recipe).filter(Recipe.memory_id == recipe_mem.id).first()
+    print recipe
     if(recipe==None):
-        return statement(render_template('not_present',Everydayrecipies=Everydayrecipies))
+        return question(render_template('not_present',Everydayrecipies=Everydayrecipies))
     steps = json.loads(recipe.steps)
     ingredients = json.loads(recipe.ingredients)
     res = ""
-    if(QueryKey and (QueryKey.lower())=="list"):
-        for k,v in ingredients:
-            res+=k+" "+str(v)+" grams"
-        return statement(render_template('ingredients',Everydayrecipies=Everydayrecipies, ingredients=res))
-    if(QueryKey and (QueryKey.lower())=="steps"):
-        return statement(render_template('steps',Everydayrecipies=Everydayrecipies, step=all_steps(steps)))
-    if(AddedWeight and AddedWeight>0):
-        if(AddedWeight - ingredients[Ingredients] < 0):
-            return statement(render_template('addedmore',Everydayrecipies=Everydayrecipies))
+    if(StepNumber and StepNumber-1<len(steps)):
+        return question(steps[StepNumber-1])
+    if(QueryKey and (QueryKey.lower())=="experiences"):
+        return question(getAllExperience(recipe_mem,db_session,Everydayrecipies))
+    if(QueryKey and (QueryKey.lower()=="list" or QueryKey.lower()=="ingredients" )):
+        print ingredients
+        for k,v in ingredients.iteritems():
+            res+=" "+k+" "+str(v)+" grams , "
+        return question(render_template('ingredients',Everydayrecipies=Everydayrecipies, ingredients=res))
+    if(QueryKey and (QueryKey.lower()=="grams" )):
+        if(Ingredients in ingredients):
+            return question(render_template('add',Everydayrecipies=Everydayrecipies,value=ingredients[Ingredients]))
         else:
-            return statement(render_template('addsome',Everydayrecipies=Everydayrecipies))
+            return question(render_template("not_present_ing"))
+    if(QueryKey and (QueryKey.lower())=="steps"):
+        return question(all_steps(steps))
+    if(AddedWeight and AddedWeight>0):
+        if(AddedWeight - ingredients[Ingredients] > 0):
+            return question(render_template('addedmore',Everydayrecipies=Everydayrecipies))
+        else:
+            return question(render_template('addsome',Everydayrecipies=Everydayrecipies, value=ingredients[Ingredients]-AddedWeight))
     if(Ingredients in ingredients):
-        return statement(render_template('addsome',Everydayrecipies=Everydayrecipies))
+        return question(render_template('addsome',Everydayrecipies=Everydayrecipies))
 
 
     # msg = render_template('added_new_step',StepNumber=StepNumber, Everydayrecipies=Everydayrecipies, CookingActions=CookingActions,WeightIngredients=WeightIngredients, Ingredients=Ingredients, CookingTime=CookingTime)
 
-    return statement(render_template('unable',Everydayrecipies=Everydayrecipies) + all_steps(steps))
+    return question(render_template('unable',Everydayrecipies=Everydayrecipies) + all_steps(steps))
 
 
 
 
-@ask.intent("AddMemoryIntent")
+@ask.intent("AddMemory")
 
-def addmemory():
+def addmemory(Everydayrecipies,EverydayRate):
+    if(len(Everydayrecipies) < 2):
+        return question(render_template('couldnt_follow',title='recipe'))
 
-    return statement("Your comment has been saved")
+    db_session = DBSession()
+    recipes = db_session.query(Memory).filter(Memory.name.like('%%%s%%' %(Everydayrecipies))).all()
+    if len(recipes) == 0:
+        return question(render_template('not_present',Everydayrecipies=Everydayrecipies))
+    recipe_mem = db_session.query(Memory).filter(Memory.name.like('%%%s%%' %(Everydayrecipies))).first()
+    print 'recipe_mem is %s, Rec.mem id is %s'%(recipe_mem.name, recipe_mem.id)    
+    
+    exp = Experience()
+    exp.experience = EverydayRate
+    exp.memory_id = recipe_mem.id
+    db_session.add(exp)
+    db_session.commit()
+    return question("Your comment has been saved")
 
 
 @ask.intent("AddRecommendations")
@@ -257,8 +292,8 @@ def add_recommendation(BookTitle, MediaType, MovieTitle):
     db_session.commit()
     
     msg = render_template('add_rec', MediaType=MediaType, title = title)
-    return statement(msg)
-    
+    return question(msg)
+
 if __name__ == '__main__':
 
     app.run(debug=True)
