@@ -1,6 +1,7 @@
 import logging
 
 from random import randint
+import json
 
 from flask import Flask, render_template
 
@@ -77,12 +78,33 @@ def answer(first, second, third):
     return statement(msg)
 
 
-@ask.intent("InsertNewStepIntent", convert={'StepNumber': int, 'WeightIngredients': int, 'CookingTime': int, 'CookingTemperature': int})
+@ask.intent("InsertNewStep", convert={'StepNumber': int, 'WeightIngredients': int, 'CookingTime': int, 'CookingTemperature': int})
 
 def insert_new_step(StepNumber, Everydayrecipies, CookingActions,WeightIngredients, Ingredients, CookingTime):
+    if(len(Everydayrecipies) < 2):
+        return statement(render_template('couldnt_follow',title='recipe'))
 
-    if(StepNumber > 0 and len(Everydayrecipies)>0 and len(CookingActions)>0 and len(WeightIngredients)>0 and len(Ingredients) > 0):
-        msg = render_template('insert_new_step')
+    db_session = DBSession()
+    recipes = db_session.query(Memory).filter(Memory.name.like('%%%s%%' %(Everydayrecipies))).all()
+    if len(recipes) == 0:
+        recipe = Memory()
+        recipe.name = Everydayrecipies
+        recipe.type = 1
+        db_session.add(recipe)
+        db_session.commit()
+    recipe_mem = db_session.query(Memory).filter(Memory.name.like('%%%s%%' %(Everydayrecipies))).first()
+    print 'recipe_mem is %s, Rec.mem id is %s'%(recipe_mem.name, recipe_mem.id)    
+    recipe = db_session.query(Recipe).filter(Recipe.memory_id == recipe_mem.id).first()
+    steps = json.loads(recipe.steps)
+    # if(StepNumber not in range(recipe.steps))
+
+    # recipe.
+    json.dumps(['foo', {'bar': ('baz', None, 1.0, 2)}])
+
+    msg = render_template('insert_new_step',StepNumber=StepNumber, Everydayrecipies=Everydayrecipies, CookingActions=CookingActions,WeightIngredients=WeightIngredients, Ingredients=Ingredients, CookingTime=CookingTime)
+
+    if(StepNumber > 0 and len(Everydayrecipies)>0 and len(CookingActions)>0 and (WeightIngredients)>0 and len(Ingredients) > 0):
+        msg = render_template('insert_new_step',StepNumber=StepNumber, Everydayrecipies=Everydayrecipies, CookingActions=CookingActions,WeightIngredients=WeightIngredients, Ingredients=Ingredients, CookingTime=CookingTime)
     return statement(msg)
 
 
@@ -95,7 +117,6 @@ def addmemory():
 
 @ask.intent("AddRecommendations")
 def add_recommendation(BookTitle, MediaType, MovieTitle):
-    print "Here1"
     db_session = DBSession()
     if(MediaType == "movie"):
         title = MovieTitle 

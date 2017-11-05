@@ -4,3 +4,4 @@ win: Good job!
 insert_new_step: "Step {{StepNumber}} for {{Everydayrecipies}} {{CookingActions}} {{WeightIngredients}} grams of {{Ingredients}} is saved"
 lose: Sorry, that's the wrong answer.
 add_rec: Added {{ title }} to {{ MediaType }} recommendation.
+couldnt_follow: I couldn't follow what u said, could you repeat the {{title}} name
