@@ -8,11 +8,20 @@ from sqlalchemy import create_engine
 
 Base = declarative_base()
 
+class Person(Base):
+    id = Column(Integer, primary_key=True)
+    first_name = Column(String(250), nullable=False)
+    last_name = Column(String(250), nullable=False)
+    alias = Column(String(250), nullable=False, index=True)
+    
 class Memory(Base):
     __tablename__ = 'memory'
     id = Column(Integer, primary_key=True)
     name = Column(String(250), nullable=False)
     type = Column(Integer, nullable=False)
+    p_from = Column(Integer, ForeignKey('person.id'))
+    p_to   = Column(Integer, ForeignKey('person.id'))
+    meta  = Column(Text)
 
 class Experience(Base):
     __tablename__ = 'experience'
