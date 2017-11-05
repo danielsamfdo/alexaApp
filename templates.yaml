@@ -3,3 +3,4 @@ round: Can you repeat the numbers {{ numbers|join(", ") }} backwards?
 win: Good job!
 insert_new_step: "Step {{StepNumber}} for {{Everydayrecipies}} {{CookingActions}} {{WeightIngredients}} grams of {{Ingredients}} is saved"
 lose: Sorry, that's the wrong answer.
+add_rec: Added {{ title }} to {{ media_type }} recommendation.

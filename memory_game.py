@@ -6,6 +6,9 @@ from flask import Flask, render_template
 
 from flask_ask import Ask, statement, question, session
 
+from sql_alchemy_tables import *
+
+import json
 
 app = Flask(__name__)
 
@@ -13,6 +16,10 @@ ask = Ask(app, "/")
 
 logging.getLogger("flask_ask").setLevel(logging.DEBUG)
 
+engine = create_engine('sqlite:///memories.db')
+Base.metadata.bind = engine
+
+DBSession = sessionmaker(bind=engine)
 
 @ask.launch
 
@@ -84,6 +91,41 @@ def addmemory():
     return statement("Your comment has been saved")
 
 
+@ask.intent("AddRecommendations")
+def add_recommendation(title, media_type):
+    db_session = DBSession()
+    media = db_session.query(Memory).filter(Memory.name.like('%%%s%%').format(media_type)).all()
+    if len(media) == 0:
+        media = Memory()
+        media.name = media_type
+        media.type = 3
+        session.add(media)
+        session.commit()
+    else:
+        media = media.first()
+        
+    media = db.session.query(Recommendation).filter(Recommendation.memory_id == media.id).all()
+    if len(media) == 0:
+        media = Recommendation()
+        media.memory_id = media.id
+        media.list = json.dumps([])
+        session.add(media)
+        session.commit()
+    else:
+        media = media.first()
+        
+    media_list = media.list
+    list_json = json.loads(media_list)
+    list_json.add(title)
+    
+    media_list = json.dumps(list_json)
+    media.list = media_list
+    session.add(media)
+    session.commit()
+    
+    msg = render_template('add_rec')
+    return statement(msg)
+    
 if __name__ == '__main__':
 
     app.run(debug=True)
