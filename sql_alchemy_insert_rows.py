@@ -51,3 +51,6 @@ session.add(exp2)
 
 session.commit()
 
+ins = Instruction()
+ins.memory_id = 2
+ins.steps = ''
