@@ -5,7 +5,7 @@ import json
 
 from flask import Flask, render_template
 
-from flask_ask import Ask, question, question, session
+from flask_ask import Ask, question, statement, session, audio
 
 from sql_alchemy_tables import *
 from sqlalchemy.orm import sessionmaker
@@ -135,6 +135,27 @@ def insert_new_step(StepNumber, Everydayrecipies, CookingActions,WeightIngredien
     return question(msg)
 
 
+
+@ask.intent("SendEmail")
+
+def gmail_help():
+
+    return statement("Step 1, Open Gmail... Step 2, In the top left, click Compose... Step 3, In the To field, add recipients..." +
+    "Note that, if you want, you can also add recipients in the cc and bcc fields... Step 4, Add a subject to the email. " +
+    "Step 5, Write your message... Step 6, At the bottom of the page click Send. Your email will be sent.")
+
+@ask.intent("ShareOnFB")
+
+def fb_help():
+    string_help_fb="Step 1, From the top of your timeline or News Feed, " +"click on what type of story you want to share, like status or a photo or a video...Step 2, Type in any details you want to add...Step 3, Select an audience for your post..."+"Step 4, finally Click post. Your message will be posted"
+    return statement(string_help_fb)
+
+@ask.intent("BirthdayEvents")
+def bday_event():
+    bday_gifts="In year 2016, it was a keyboard. In 2015, it was a smart phone and in year 2014, it was a pair of Nike shoes."
+    return statement(string bday_gifts)
+
+
 def all_steps(steps):
     s = " "
     for i in range(len(steps)):
@@ -229,6 +250,16 @@ def query_step(StepNumber, Everydayrecipies, AddedWeight, QueryKey, Ingredients)
     return question(render_template('unable',Everydayrecipies=Everydayrecipies) + all_steps(steps))
 
 
+@ask.intent("PlayRecoIntent")
+def play_music():
+    stream_url='https://archive.org/download/plpl011/plpl011_05-johnny_ripper-rain.mp3'
+    speech="Warm Greetings , music recommended by your mom is rain by johnny ripper. "
+    return audio(speech).play(stream_url)
+
+@ask.intent("StopRecoIntent")
+def stop_music():
+    speech="Stopping the music."
+    return audio(speech).stop()
 
 
 @ask.intent("AddMemory")
