@@ -95,6 +95,7 @@ def addmemory():
 
 @ask.intent("AddRecommendations")
 def add_recommendation(BookTitle, MediaType, MovieTitle):
+    print "Here1"
     db_session = DBSession()
     if(MediaType == "movie"):
         title = MovieTitle 
@@ -110,11 +111,12 @@ def add_recommendation(BookTitle, MediaType, MovieTitle):
         db_session.commit()
     else:
         media = media[0]
-        
-    media = db_session.query(Recommendation).filter(Recommendation.memory_id == media.id).all()
+    print 'Media is %s, media.id is %s'%(media, media.id)    
+    memory = media
+    media = db_session.query(Recommendation).filter(Recommendation.memory_id == memory.id).all()
     if len(media) == 0:
         media = Recommendation()
-        media.memory_id = media.id
+        media.memory_id = memory.id
         media.list = json.dumps([])
         db_session.add(media)
         db_session.commit()
@@ -127,6 +129,7 @@ def add_recommendation(BookTitle, MediaType, MovieTitle):
     
     media_list = json.dumps(list_json)
     media.list = media_list
+    print('Media is %s, media.memory_id is %s'%(media, media.memory_id))
     db_session.add(media)
     db_session.commit()
     
