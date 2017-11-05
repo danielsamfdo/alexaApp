@@ -1,4 +1,5 @@
 import logging
+import boto3
 
 from random import randint
 import json
@@ -133,6 +134,27 @@ def insert_new_step(StepNumber, Everydayrecipies, CookingActions,WeightIngredien
     msg = render_template('added_new_step',StepNumber=StepNumber, Everydayrecipies=Everydayrecipies, CookingActions=CookingActions,WeightIngredients=WeightIngredients, Ingredients=Ingredients, CookingTime=CookingTime)
 
     return question(msg)
+
+
+@ask.intent("AskLex")
+
+
+def ask_lex(Question):
+    if(Question==None):
+        return statement("Okay, Cool. I will let Lex Know ")
+    else:
+        client = boto3.client('lex-runtime')
+        response = client.post_content(
+            botName='OrderFlowers',
+            botAlias='flower',
+            userId='daniel',
+            sessionAttributes=None,
+            requestAttributes=None,
+            contentType='string',
+            accept='string',
+            inputStream=b'bytes'
+        )
+        return statement(response['message'])
 
 
 
