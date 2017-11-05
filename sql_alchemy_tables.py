@@ -36,6 +36,12 @@ class Recipe(Base):
     memory_id = Column(Integer, ForeignKey('memory.id'))
     #memory = relationship('Memory', back_populates='recipe')
 
+class Recommendation(Base):
+    __tablename__ = 'movie_list'
+    id = Column(Integer, primary_key=True)
+    list = Column(Text, nullable=False)
+    memory_id = Column(Integer, ForeignKey('memory.id'))
+
 engine = create_engine('sqlite:///memories.db')
 
 Base.metadata.create_all(engine)
