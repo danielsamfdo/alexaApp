@@ -33,6 +33,7 @@ class Recipe(Base):
     __tablename__ = 'recipe'
     id = Column(Integer, primary_key=True)
     steps = Column(Text, nullable=False)
+    ingredients = Column(Text, nullable=False)
     memory_id = Column(Integer, ForeignKey('memory.id'))
     #memory = relationship('Memory', back_populates='recipe')
 
