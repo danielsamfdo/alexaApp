@@ -5,10 +5,12 @@ from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
+from sqlalchemy.sql import func
 
 Base = declarative_base()
 
 class Person(Base):
+    __tablename__ = 'person'
     id = Column(Integer, primary_key=True)
     first_name = Column(String(250), nullable=False)
     last_name = Column(String(250), nullable=False)
@@ -21,12 +23,13 @@ class Memory(Base):
     type = Column(Integer, nullable=False)
     p_from = Column(Integer, ForeignKey('person.id'))
     p_to   = Column(Integer, ForeignKey('person.id'))
+    date = Column(DateTime, server_default=func.now())
     meta  = Column(Text)
 
 class Experience(Base):
     __tablename__ = 'experience'
     id = Column(Integer, primary_key=True)
-    date = Column(DateTime, nullable=False)
+    date = Column(DateTime, nullable=False, server_default=func.now())
     experience=Column(Text, nullable=False)
     memory_id = Column(Integer, ForeignKey('memory.id'))
     #memory = relationship('Memory', back_populates='experiences')
