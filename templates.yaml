@@ -1,4 +1,5 @@
 welcome: Welcome to memory game. I'm going to say three numbers for you to repeat backwards. Ready?
 round: Can you repeat the numbers {{ numbers|join(", ") }} backwards?
 win: Good job!
+insert_new_step: "Step {{StepNumber}} for {{Everydayrecipies}} {{CookingActions}} {{WeightIngredients}} grams of {{Ingredients}} is saved"
 lose: Sorry, that's the wrong answer.

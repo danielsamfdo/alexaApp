@@ -68,6 +68,15 @@ def answer(first, second, third):
     return statement(msg)
 
 
+@ask.intent("InsertNewStepIntent", convert={'StepNumber': int, 'WeightIngredients': int, 'CookingTime': int, 'CookingTemperature': int})
+
+def insert_new_step(StepNumber, Everydayrecipies, CookingActions,WeightIngredients, Ingredients, CookingTime):
+
+    if(StepNumber > 0 and len(Everydayrecipies)>0 and len(CookingActions)>0 and len(WeightIngredients)>0 and len(Ingredients) > 0):
+        msg = render_template('insert_new_step')
+    return statement(msg)
+
+
 @ask.intent("AddMemoryIntent")
 
 def addmemory():
