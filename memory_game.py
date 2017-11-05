@@ -179,7 +179,7 @@ def fb_help():
 
 @ask.intent("BirthdayEvents")
 def bday_event():
-    bday_gifts="In year 2016, it was a keyboard. In 2015, it was a smart phone and in year 2014, it was a pair of Nike shoes."
+    bday_gifts="In year 2016, it was a keyboard. In 2015, it was a smart phone and in year 2014, it was a pair of Nike shoes. That year she also made your favorite Butter Chicken."
     return statement(bday_gifts)
 
 

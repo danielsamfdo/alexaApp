@@ -1,0 +1,41 @@
+Flow: Birthday -> Ask for Butter Chicken (already data present) -> 
+	  From Echo 2 add and modify Tuna Sandwich -> Query abt. Tuna from Echo 1 ->
+	  In Echo 1 ask Technical doubts -> Set Recommendations in Echo 1 ->
+	  Play music in Echo 2 -> Play with lex in Echo 1
+
+Birthday:
+"What gifts did I get on my birthday" 
+
+Butter Chicken:
+"What are the ingredients in Butter Chicken"
+"What is step two in Butter Chicken"
+"After adding forty five grams of Chicken in Butter Chicken how much more should I add"
+
+Tuna Sandwich (add & modify):
+Step 1 for Tuna Sandwich Take 60 grams of Tuna
+Step 2 for Tuna Sandwich fry eggs at 350 degrees for 35 minutes
+Sorry can you remove step two for Tuna Sandwich
+Step 2 for Tuna Sandwich fry eggs at 400 degrees for 1 hour
+
+Tuna Sandwich (query):
+What are the steps in Tuna Sandwich
+For Tuna Sandwich add comment Awesome!
+
+IT Help:
+How to send an email
+//How to share something on FB
+
+Add Recommendation:
+Add dark knight to my movie recommendations
+//Add Harry Potter to my book recommendations
+
+Play Music:
+Play my recommended song
+Stop the music //ALEXA MUTE
+
+Play Lex:
+Tell Lex I would like to order some flowers for my mom
+Tell Lex I would like to order roses
+Tell Lex I want the roses to be picked up on the eleventh of November
+Tell Lex 4 PM
+Tell Lex to close
