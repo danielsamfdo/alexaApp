@@ -1,4 +1,4 @@
-welcome: Welcome to memory game. I'm going to say three numbers for you to repeat backwards. Ready?
+go: Go
 round: Can you repeat the numbers {{ numbers|join(", ") }} backwards?
 win: Good job!
 insert_new_step: "Step {{StepNumber}} for {{Everydayrecipies}} {{CookingActions}} {{WeightIngredients}} grams of {{Ingredients}} is saved"
@@ -9,10 +9,13 @@ ins_step_1:  for {{Everydayrecipies}} {{CookingActions}} {{WeightIngredients}} g
 ins_step_2:  for {{Everydayrecipies}} {{CookingActions}} {{Ingredients}} at {{CookingTime}} at {{CookingTemperature}} degrees
 ins_step_3:  for {{Everydayrecipies}} {{CookingActions}} for {CookingTime}
 added_new_step: Added the step {{StepNumber}} for {{Everydayrecipies}}
-not_present: "{{Everydayrecipies}} is not present in my memory."
+not_present: My memory doesn't have {{Everydayrecipies}}
 removed: I have removed the requested step in {{Everydayrecipies}}. The steps remaining are 
 addedmore: You have added more than required, But dont worry, lets call Mom
 addsome: You need to add {{value}} grams more. Your mom would be proud
-ingredients: The ingredients for Everydayrecipies are {{ingredients}}
+add: You need to add {{value}} grams.
+ingredients: The ingredients for {{Everydayrecipies}} are {{ingredients}}
 unable: I am unable to do the requested step in {{Everydayrecipies}}. But the steps are 
 steps: The steps for {{Everydayrecipies}} are {{step}}
+exp_not_available: There are no experiences available
+not_present_ing: That ingredient is not present
