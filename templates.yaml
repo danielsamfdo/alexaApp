@@ -5,3 +5,14 @@ insert_new_step: "Step {{StepNumber}} for {{Everydayrecipies}} {{CookingActions}
 lose: Sorry, that's the wrong answer.
 add_rec: Added {{ title }} to {{ MediaType }} recommendation.
 couldnt_follow: I couldn't follow what u said, could you repeat the {{title}} name
+ins_step_1:  for {{Everydayrecipies}} {{CookingActions}} {{WeightIngredients}} grams of {{Ingredients}}
+ins_step_2:  for {{Everydayrecipies}} {{CookingActions}} {{Ingredients}} at {{CookingTime}} at {{CookingTemperature}} degrees
+ins_step_3:  for {{Everydayrecipies}} {{CookingActions}} for {CookingTime}
+added_new_step: Added the step {{StepNumber}} for {{Everydayrecipies}}
+not_present: "{{Everydayrecipies}} is not present in my memory."
+removed: I have removed the requested step in {{Everydayrecipies}}. The steps remaining are 
+addedmore: You have added more than required, But dont worry, lets call Mom
+addsome: You need to add {{value}} grams more. Your mom would be proud
+ingredients: The ingredients for Everydayrecipies are {{ingredients}}
+unable: I am unable to do the requested step in {{Everydayrecipies}}. But the steps are 
+steps: The steps for {{Everydayrecipies}} are {{step}}

@@ -79,12 +79,13 @@ def answer(first, second, third):
 
 
 def getStep(StepNumber, Everydayrecipies, CookingActions,WeightIngredients, Ingredients, CookingTime,CookingTemperature):
-    step = render_template('ins_step_3',StepNumber=StepNumber, Everydayrecipies=Everydayrecipies, CookingActions=CookingActions,WeightIngredients=WeightIngredients, Ingredients=Ingredients, CookingTime=CookingTime)
  
     if(CookingTemperature>0):
         step = render_template('ins_step_2',StepNumber=StepNumber, Everydayrecipies=Everydayrecipies, CookingActions=CookingActions,WeightIngredients=WeightIngredients, Ingredients=Ingredients, CookingTime=CookingTime, CookingTemperature=CookingTemperature)
-    if(WeightIngredients>0):
+    elif(WeightIngredients>0):
         step = render_template('ins_step_1',StepNumber=StepNumber, Everydayrecipies=Everydayrecipies, CookingActions=CookingActions,WeightIngredients=WeightIngredients, Ingredients=Ingredients, CookingTime=CookingTime)
+    else:
+        step = render_template('ins_step_3',StepNumber=StepNumber, Everydayrecipies=Everydayrecipies, CookingActions=CookingActions,WeightIngredients=WeightIngredients, Ingredients=Ingredients, CookingTime=CookingTime)
 
     return step
 
