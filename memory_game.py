@@ -153,7 +153,7 @@ def fb_help():
 @ask.intent("BirthdayEvents")
 def bday_event():
     bday_gifts="In year 2016, it was a keyboard. In 2015, it was a smart phone and in year 2014, it was a pair of Nike shoes."
-    return statement(string bday_gifts)
+    return statement(bday_gifts)
 
 
 def all_steps(steps):
