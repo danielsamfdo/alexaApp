@@ -14,6 +14,8 @@ from sqlalchemy import create_engine
 
 import json
 
+user_key = "keydaniel"
+
 app = Flask(__name__)
 
 ask = Ask(app, "/")
@@ -144,17 +146,20 @@ def ask_lex(Question):
         return statement("Okay, Cool. I will let Lex Know ")
     else:
         client = boto3.client('lex-runtime')
-        response = client.post_content(
+        response = client.post_text(
             botName='OrderFlowers',
             botAlias='flower',
-            userId='daniel',
-            sessionAttributes=None,
-            requestAttributes=None,
-            contentType='string',
-            accept='string',
-            inputStream=b'bytes'
+            userId=user_key,
+            sessionAttributes={
+                'string': 'string'
+            },
+            requestAttributes={
+                'string': 'string'
+            },
+            inputText=Question
         )
-        return statement(response['message'])
+        print response.keys()
+        return question(response['message'])
 
 
 
@@ -251,21 +256,21 @@ def query_step(StepNumber, Everydayrecipies, AddedWeight, QueryKey, Ingredients)
         for k,v in ingredients.iteritems():
             res+=" "+k+" "+str(v)+" grams , "
         return question(render_template('ingredients',Everydayrecipies=Everydayrecipies, ingredients=res))
-    if(QueryKey and (QueryKey.lower()=="grams" )):
-        if(Ingredients in ingredients):
-            return question(render_template('add',Everydayrecipies=Everydayrecipies,value=ingredients[Ingredients]))
-        else:
-            return question(render_template("not_present_ing"))
+
     if(QueryKey and (QueryKey.lower())=="steps"):
         return question(all_steps(steps))
     if(AddedWeight and AddedWeight>0):
         if(AddedWeight - ingredients[Ingredients] > 0):
             return question(render_template('addedmore',Everydayrecipies=Everydayrecipies))
         else:
-            return question(render_template('addsome',Everydayrecipies=Everydayrecipies, value=ingredients[Ingredients]-AddedWeight))
+            return question(render_template('addsome',Everydayrecipies=Everydayrecipies, value=(ingredients[Ingredients]-AddedWeight)))
     if(Ingredients in ingredients):
         return question(render_template('addsome',Everydayrecipies=Everydayrecipies))
-
+    if(QueryKey and (QueryKey.lower()=="grams" )):
+        if(Ingredients in ingredients):
+            return question(render_template('add',Everydayrecipies=Everydayrecipies,value=ingredients[Ingredients]))
+        else:
+            return question(render_template("not_present_ing"))
 
     # msg = render_template('added_new_step',StepNumber=StepNumber, Everydayrecipies=Everydayrecipies, CookingActions=CookingActions,WeightIngredients=WeightIngredients, Ingredients=Ingredients, CookingTime=CookingTime)
 
